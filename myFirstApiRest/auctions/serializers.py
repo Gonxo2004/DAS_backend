@@ -1,0 +1,87 @@
+from rest_framework import serializers
+from django.utils import timezone
+from datetime import timedelta
+from drf_spectacular.utils import extend_schema_field
+from .models import Category, Auction, Bid
+
+class CategoryListCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id','name']
+
+class CategoryDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+class AuctionListCreateSerializer(serializers.ModelSerializer):
+
+    creation_date = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%SZ", read_only=True)
+    closing_date = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%SZ")
+    isOpen = serializers.SerializerMethodField(read_only=True)
+
+    def validate(self, data):
+        closing_date = data.get("closing_date")
+        creation_date = data.get("creation_date")
+        rating = data.get("rating")
+
+        if closing_date and closing_date < creation_date + timedelta(days=15):
+            raise serializers.ValidationError({
+                "closing_date": "Closing date must be at least 15 days after creation date."
+            })
+        
+        if not (1 <= rating <= 5):
+            raise serializers.ValidationError({
+                "rating": "Rating must be between 1 and 5"
+            })
+
+        return data
+
+    class Meta:
+        model = Auction
+        fields = '__all__'
+
+
+    @extend_schema_field(serializers.BooleanField())
+    def get_isOpen(self, obj):
+        return obj.closing_date > timezone.now()
+
+
+class AuctionDetailSerializer(serializers.ModelSerializer):
+
+    creation_date = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%SZ", read_only=True)
+    closing_date = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%SZ")
+    isOpen = serializers.SerializerMethodField(read_only=True)
+
+    def validate(self, data):
+        closing_date = data.get("closing_date")
+        creation_date = data.get("creation_date")
+        rating = data.get("rating")
+
+        if closing_date and closing_date < creation_date + timedelta(days=15):
+            raise serializers.ValidationError({
+                "closing_date": "Closing date must be at least 15 days after creation date."
+            })
+        
+        if not (1 <= rating <= 5):
+            raise serializers.ValidationError({
+                "rating": "Rating must be between 1 and 5"
+            })
+
+        return data
+
+    class Meta:
+        model = Auction
+        fields = '__all__'
+
+    @extend_schema_field(serializers.BooleanField())
+    def get_isOpen(self, obj):
+        return obj.closing_date > timezone.now()
+
+class BidSerializer(serializers.ModelSerializer):
+    creation_date = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%SZ", read_only=True)
+    
+    class Meta:
+        model = Bid
+        fields = '__all__'
+        read_only_fields = ('auction',) 
