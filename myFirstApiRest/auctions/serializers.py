@@ -22,10 +22,9 @@ class AuctionListCreateSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         closing_date = data.get("closing_date")
-        creation_date = data.get("creation_date")
         rating = data.get("rating")
 
-        if closing_date and closing_date < creation_date + timedelta(days=15):
+        if closing_date and closing_date < timezone.now() + timedelta(days=15):
             raise serializers.ValidationError({
                 "closing_date": "Closing date must be at least 15 days after creation date."
             })
@@ -55,10 +54,9 @@ class AuctionDetailSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         closing_date = data.get("closing_date")
-        creation_date = data.get("creation_date")
         rating = data.get("rating")
 
-        if closing_date and closing_date < creation_date + timedelta(days=15):
+        if closing_date and closing_date < timezone.now() + timedelta(days=15):
             raise serializers.ValidationError({
                 "closing_date": "Closing date must be at least 15 days after creation date."
             })
@@ -80,6 +78,22 @@ class AuctionDetailSerializer(serializers.ModelSerializer):
 
 class BidSerializer(serializers.ModelSerializer):
     creation_date = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%SZ", read_only=True)
+
+    def validate(self, data):
+        auction = data['auction']
+        price = data['price']
+        isOpen = data['isOpen']
+
+        # 1. Verificar si la subasta está abierta
+        if not isOpen:
+            raise serializers.ValidationError("La subasta ya ha cerrado. No se puede pujar.")
+
+        # 2. Verificar si la puja es mayor que la actual
+        highest_bid = auction.bids.order_by('-price').first()
+        if highest_bid and price <= highest_bid.price:
+            raise serializers.ValidationError("La puja debe ser mayor que la anterior puja ganadora.")
+
+        return data
     
     class Meta:
         model = Bid
