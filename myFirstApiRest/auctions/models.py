@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator
+from users.models import CustomUser
 
 
 class Category(models.Model):
@@ -16,6 +17,7 @@ class Auction(models.Model):
     title = models.CharField(max_length=150)
     description = models.TextField()
     price = models.IntegerField(validators=[MinValueValidator(1)])
+    auctioneer = models.ForeignKey(CustomUser, related_name='auctions', on_delete=models.CASCADE)
     rating = models.IntegerField()
     stock = models.IntegerField(validators=[MinValueValidator(1)])
     brand = models.CharField(max_length=100)

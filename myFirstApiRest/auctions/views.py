@@ -5,6 +5,10 @@ from rest_framework import generics, status
 from .models import Category, Auction, Bid
 from .serializers import CategoryListCreateSerializer, CategoryDetailSerializer, AuctionListCreateSerializer, AuctionDetailSerializer, BidSerializer
 from rest_framework.exceptions import ValidationError
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from .permissions import IsOwnerOrAdmin
 
 class CategoryListCreate(generics.ListCreateAPIView):
     queryset = Category.objects.all() #consulta a base de datos (que dato devuelvo)
@@ -59,8 +63,10 @@ class AuctionListCreate(generics.ListCreateAPIView):
         return queryset
 
 class AuctionRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsOwnerOrAdmin]
     queryset = Auction.objects.all()
     serializer_class = AuctionDetailSerializer
+    
 
 class BidListCreate(generics.ListCreateAPIView):
     serializer_class = BidSerializer
@@ -75,5 +81,13 @@ class BidListCreate(generics.ListCreateAPIView):
 class BidRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     queryset = Bid.objects.all()
     serializer_class = BidSerializer
+
+class UserAuctionListView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request, *args, **kwargs):
+    # Obtener las subastas del usuario autenticado
+        user_auctions = Auction.objects.filter(auctioneer=request.user)
+        serializer = AuctionListCreateSerializer(user_auctions, many=True)
+        return Response(serializer.data)
 
     
