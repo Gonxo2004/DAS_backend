@@ -9,6 +9,8 @@ class CategoryListCreateSerializer(serializers.ModelSerializer):
         model = Category
         fields = ['id','name']
 
+    
+
 class CategoryDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
