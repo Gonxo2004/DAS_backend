@@ -87,8 +87,19 @@ class BidListCreate(generics.ListCreateAPIView):
         return Bid.objects.filter(auction_id=self.kwargs['auction_id'])  
 
     def perform_create(self, serializer):
-        auction = Auction.objects.get(pk=self.kwargs['auction_id'])  
-        serializer.save(auction=auction)  
+        auction = Auction.objects.get(pk=self.kwargs['auction_id'])
+
+        # Obtener la puja más alta para esta subasta
+        highest_bid = Bid.objects.filter(auction=auction).order_by('-price').first()
+
+        new_bid_price = serializer.validated_data['price']
+
+        if highest_bid and new_bid_price <= highest_bid.price:
+            raise ValidationError({
+                "price": f"La puja debe ser mayor que la actual más alta: {highest_bid.price} €"
+            })
+
+        serializer.save(auction=auction, bidder=self.request.user) 
 
 class BidRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsBidderOrAdmin]
