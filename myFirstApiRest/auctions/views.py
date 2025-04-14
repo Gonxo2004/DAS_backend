@@ -28,7 +28,7 @@ class AuctionListCreate(generics.ListCreateAPIView):
         if self.request.method == 'POST':
             return [IsOwnerOrAdmin()]
         return [AllowAny()]
-
+    
     serializer_class = AuctionListCreateSerializer
     def get_queryset(self):
         queryset = Auction.objects.all()
@@ -49,7 +49,6 @@ class AuctionListCreate(generics.ListCreateAPIView):
             queryset = queryset.filter(
                 Q(title__icontains=search) | Q(description__icontains=search)
             )
-
         # Category filter
         if category_id:
             queryset = queryset.filter(category_id=category_id)
@@ -58,18 +57,21 @@ class AuctionListCreate(generics.ListCreateAPIView):
         if min_price:
             try:
                 min_price = float(min_price)
-                queryset = queryset.filter(starting_price__gte=min_price)
+                queryset = queryset.filter(price__gte=min_price)
             except ValueError:
                 raise ValidationError({"min_price": "Must be a valid number."})
 
         if max_price:
             try:
                 max_price = float(max_price)
-                queryset = queryset.filter(starting_price__lte=max_price)
+                queryset = queryset.filter(price__lte=max_price)
             except ValueError:
                 raise ValidationError({"max_price": "Must be a valid number."})
 
         return queryset
+
+    def perform_create(self, serializer):
+        serializer.save(auctioneer=self.request.user)
 
 class AuctionRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsOwnerOrAdmin]
@@ -81,30 +83,42 @@ class BidListCreate(generics.ListCreateAPIView):
     def get_permissions(self):
         if self.request.method == 'POST':
             return [IsAuthenticated()]
-        return [AllowAny()]
+        return [AllowAny()]  # o tu lógica
     serializer_class = BidSerializer
-    def get_queryset(self): # obtengo todas las pujas de la subatasa concreta
-        return Bid.objects.filter(auction_id=self.kwargs['auction_id'])  
+
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsAuthenticated()]
+        return [AllowAny()]
+
+    def get_queryset(self):
+        return Bid.objects.filter(auction_id=self.kwargs['auction_id'])
 
     def perform_create(self, serializer):
         auction = Auction.objects.get(pk=self.kwargs['auction_id'])
+        
+        # Verificar si la subasta está abierta
+        if not auction.isOpen:
+            raise ValidationError("La subasta ya ha cerrado. No se puede pujar.")
 
-        # Obtener la puja más alta para esta subasta
+        # Obtener la puja más alta
         highest_bid = Bid.objects.filter(auction=auction).order_by('-price').first()
-
         new_bid_price = serializer.validated_data['price']
 
         if highest_bid and new_bid_price <= highest_bid.price:
             raise ValidationError({
                 "price": f"La puja debe ser mayor que la actual más alta: {highest_bid.price} €"
             })
-
-        serializer.save(auction=auction, bidder=self.request.user) 
+        
+        # Asignar la subasta y el usuario logueado como 'bidder'
+        serializer.save(auction=auction, bidder=self.request.user)
 
 class BidRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsBidderOrAdmin]
     queryset = Bid.objects.all()
     serializer_class = BidSerializer
+    def perform_create(self, serializer):
+        serializer.save(bidder=self.request.user)
 
 
 class UserAuctionListView(APIView):

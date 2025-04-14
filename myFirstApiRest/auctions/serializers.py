@@ -9,8 +9,6 @@ class CategoryListCreateSerializer(serializers.ModelSerializer):
         model = Category
         fields = ['id','name']
 
-    
-
 class CategoryDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -21,6 +19,7 @@ class AuctionListCreateSerializer(serializers.ModelSerializer):
     creation_date = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%SZ", read_only=True)
     closing_date = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%SZ")
     isOpen = serializers.SerializerMethodField(read_only=True)
+    auctioneer = serializers.ReadOnlyField(source='auctioneer.username')
 
     def validate(self, data):
         closing_date = data.get("closing_date")
@@ -49,10 +48,10 @@ class AuctionListCreateSerializer(serializers.ModelSerializer):
 
 
 class AuctionDetailSerializer(serializers.ModelSerializer):
-
     creation_date = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%SZ", read_only=True)
     closing_date = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%SZ")
     isOpen = serializers.SerializerMethodField(read_only=True)
+    auctioneer = serializers.ReadOnlyField(source='auctioneer.username')
 
     def validate(self, data):
         closing_date = data.get("closing_date")
@@ -80,24 +79,9 @@ class AuctionDetailSerializer(serializers.ModelSerializer):
 
 class BidSerializer(serializers.ModelSerializer):
     creation_date = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%SZ", read_only=True)
+    bidder = serializers.ReadOnlyField(source='bidder.username')
 
-    def validate(self, data):
-        auction = data['auction']
-        price = data['price']
-        isOpen = data['isOpen']
-
-        # 1. Verificar si la subasta está abierta
-        if not isOpen:
-            raise serializers.ValidationError("La subasta ya ha cerrado. No se puede pujar.")
-
-        # 2. Verificar si la puja es mayor que la actual
-        highest_bid = auction.bids.order_by('-price').first()
-        if highest_bid and price <= highest_bid.price:
-            raise serializers.ValidationError("La puja debe ser mayor que la anterior puja ganadora.")
-
-        return data
-    
     class Meta:
         model = Bid
         fields = '__all__'
-        read_only_fields = ('auction',) 
+        read_only_fields = ('auction', 'bidder') 

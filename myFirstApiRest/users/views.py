@@ -34,9 +34,15 @@ class UserListView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
 
 class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAdminUser]
     serializer_class = UserSerializer
     queryset = CustomUser.objects.all()
+
+    def get_permissions(self):
+        if self.request.method in ['PATCH', 'PUT']:
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAdminUser]
+        return [permission() for permission in permission_classes]
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
