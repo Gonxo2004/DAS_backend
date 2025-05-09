@@ -16,7 +16,6 @@ class Auction(models.Model):
     description = models.TextField()
     price = models.IntegerField(validators=[MinValueValidator(1)])
     auctioneer = models.ForeignKey(CustomUser, related_name='auctions', on_delete=models.CASCADE)
-    rating = models.IntegerField()
     stock = models.IntegerField(validators=[MinValueValidator(1)])
     brand = models.CharField(max_length=100)
     category = models.ForeignKey(Category, related_name='auctions', on_delete=models.CASCADE)
@@ -29,6 +28,11 @@ class Auction(models.Model):
 
     def __str__(self):
         return self.title
+
+    def get_average_rating(self):
+        from django.db.models import Avg
+        average = self.ratings.aggregate(Avg('value'))['value__avg']
+        return round(average, 2) if average else None  # Redondear a 2 decimales o devolver None si no hay valoraciones
 
 class Bid(models.Model):
     auction = models.ForeignKey(Auction, related_name="bids", on_delete=models.CASCADE)

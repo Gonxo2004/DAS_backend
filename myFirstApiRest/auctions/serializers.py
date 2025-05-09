@@ -50,6 +50,7 @@ class AuctionDetailSerializer(serializers.ModelSerializer):
     closing_date = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%SZ")
     isOpen = serializers.SerializerMethodField(read_only=True)
     auctioneer = serializers.ReadOnlyField(source='auctioneer.username')
+    average_rating = serializers.SerializerMethodField()
 
     def validate(self, data):
         closing_date = data.get("closing_date")
@@ -69,11 +70,18 @@ class AuctionDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Auction
-        fields = '__all__'
+        fields = [
+            'id', 'title', 'description', 'price', 'auctioneer', 'stock',
+            'brand', 'category', 'thumbnail', 'creation_date', 'closing_date',
+            'average_rating'  # Incluir la media de las valoraciones
+        ]
 
     @extend_schema_field(serializers.BooleanField())
     def get_isOpen(self, obj):
         return obj.closing_date > timezone.now()
+
+    def get_average_rating(self, obj):
+        return obj.get_average_rating()
 
 class AuctionShortSerializer(serializers.ModelSerializer):
     class Meta:

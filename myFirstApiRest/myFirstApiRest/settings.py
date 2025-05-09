@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     # TUS APPS:
     "auctions",
     "users",
+    "ratings",
     # LIBS:
     "rest_framework",
     "rest_framework_simplejwt",
