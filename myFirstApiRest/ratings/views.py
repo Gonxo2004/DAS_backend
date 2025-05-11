@@ -5,6 +5,7 @@ from .models import Rating
 from .serializers import RatingSerializer
 from auctions.models import Auction
 from django.shortcuts import get_object_or_404
+from .permissions import IsOwnerOrReadOnly
 
 class RatingListCreate(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
@@ -19,7 +20,7 @@ class RatingListCreate(generics.ListCreateAPIView):
 
 
 class RatingRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsOwnerOrReadOnly]
     serializer_class = RatingSerializer
 
     def get_queryset(self):

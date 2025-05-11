@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from users.models import CustomUser
+from django.db.models import Avg
 
 class Category(models.Model):
     name = models.CharField(max_length=50, blank=False, unique=True)
@@ -30,9 +31,8 @@ class Auction(models.Model):
         return self.title
 
     def get_average_rating(self):
-        from django.db.models import Avg
         average = self.ratings.aggregate(Avg('value'))['value__avg']
-        return round(average, 2) if average else None  # Redondear a 2 decimales o devolver None si no hay valoraciones
+        return round(average, 2) if average else 1  # Redondear a 2 decimales o devolver None si no hay valoraciones
 
 class Bid(models.Model):
     auction = models.ForeignKey(Auction, related_name="bids", on_delete=models.CASCADE)

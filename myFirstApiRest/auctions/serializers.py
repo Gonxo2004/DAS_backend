@@ -72,7 +72,7 @@ class AuctionDetailSerializer(serializers.ModelSerializer):
         model = Auction
         fields = [
             'id', 'title', 'description', 'price', 'auctioneer', 'stock',
-            'brand', 'category', 'thumbnail', 'creation_date', 'closing_date',
+            'brand', 'category', 'thumbnail', 'creation_date', 'closing_date',"isOpen",
             'average_rating'  # Incluir la media de las valoraciones
         ]
 
