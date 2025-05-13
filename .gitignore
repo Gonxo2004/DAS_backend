@@ -26,3 +26,4 @@ replay_pid*
 
 /djangoServer
 /venv
+__pycache__/
