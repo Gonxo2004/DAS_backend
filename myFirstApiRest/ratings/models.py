@@ -10,7 +10,7 @@ class Rating(models.Model):
 
 
     class Meta:
-        unique_together = ('user', 'auction')  # Un usuario solo puede valorar una subasta una vez
+        unique_together = ('user', 'auction') 
         ordering = ("id",)
 
     def __str__(self):

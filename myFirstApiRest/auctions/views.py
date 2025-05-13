@@ -107,7 +107,6 @@ class BidListCreate(generics.ListCreateAPIView):
         auction = get_object_or_404(Auction, pk=self.kwargs['auction_id'])
 
         # Verificar si la subasta está abierta
-        # (usamos la propiedad isOpen del serializer, pero hay que tener cuidado con "obj.closing_date > now")
         if auction.closing_date <= auction.creation_date:
             raise ValidationError("La subasta ya ha cerrado. No se puede pujar.")
 
@@ -131,7 +130,6 @@ class BidRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
         serializer.save(bidder=self.request.user)
 
 
-# ---------- VISTAS PARA SUBASTAS DE UN USUARIO CONCRETO ----------
 class UserAuctionListView(APIView):
     """
     Lista todas las subastas creadas por el usuario autenticado.

@@ -23,5 +23,4 @@ class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsOwnerOrReadOnly]
 
     def get_queryset(self):
-        # sólo comentarios de esta subasta
         return Comment.objects.filter(auction_id=self.kwargs['auction_id'])

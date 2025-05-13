@@ -22,16 +22,10 @@ class AuctionListCreateSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         closing_date = data.get("closing_date")
-        rating = data.get("rating")
 
         if closing_date and closing_date < timezone.now() + timedelta(days=15):
             raise serializers.ValidationError({
                 "closing_date": "Closing date must be at least 15 days after creation date."
-            })
-
-        if not (1 <= rating <= 5):
-            raise serializers.ValidationError({
-                "rating": "Rating must be between 1 and 5"
             })
 
         return data
@@ -54,16 +48,10 @@ class AuctionDetailSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         closing_date = data.get("closing_date")
-        rating = data.get("rating")
 
         if closing_date and closing_date < timezone.now() + timedelta(days=15):
             raise serializers.ValidationError({
                 "closing_date": "Closing date must be at least 15 days after creation date."
-            })
-
-        if not (1 <= rating <= 5):
-            raise serializers.ValidationError({
-                "rating": "Rating must be between 1 and 5"
             })
 
         return data
@@ -73,7 +61,7 @@ class AuctionDetailSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'description', 'price', 'auctioneer', 'stock',
             'brand', 'category', 'thumbnail', 'creation_date', 'closing_date',"isOpen",
-            'average_rating'  # Incluir la media de las valoraciones
+            'average_rating'  
         ]
 
     @extend_schema_field(serializers.BooleanField())
@@ -86,17 +74,16 @@ class AuctionDetailSerializer(serializers.ModelSerializer):
 class AuctionShortSerializer(serializers.ModelSerializer):
     class Meta:
         model = Auction
-        # Campos que quieras mostrar en "Mis Pujas"
         fields = ['id', 'title', 'closing_date', 'thumbnail']
 
 class BidSerializer(serializers.ModelSerializer):
-    auction = AuctionShortSerializer(read_only=True)  # ANIDAMOS EL SERIALIZER
+    auction = AuctionShortSerializer(read_only=True) 
     bidder = serializers.ReadOnlyField(source='bidder.username')
 
     class Meta:
         model = Bid
         fields = [
             'id', 'price', 'creation_date',
-            'bidder', 'auction'   # => "auction" es ya un objeto con { id, title, closing_date, thumbnail }
+            'bidder', 'auction'   
         ]
         read_only_fields = ['id', 'creation_date', 'bidder', 'auction']
