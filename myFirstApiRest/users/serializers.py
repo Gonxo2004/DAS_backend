@@ -23,7 +23,7 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
     def validate_email(self, value):
-        user = self.instance  # Solo tiene valor cuando se está actualizando
+        user = self.instance  
         if CustomUser.objects.filter(email=value).exclude(pk=user.pk if user else None).exists():
             raise serializers.ValidationError("Email already in use.")
         return value
@@ -44,7 +44,6 @@ class UserSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-        # Usamos create_user para que Django maneje el hash de la contraseña
         return CustomUser.objects.create_user(**validated_data)
 
 class ChangePasswordSerializer(serializers.Serializer):

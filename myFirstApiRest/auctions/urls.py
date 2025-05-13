@@ -7,7 +7,7 @@ from .views import (
     BidListCreate,
     BidRetrieveUpdateDestroy,
     UserAuctionListView,
-    MyBidsView,   # <-- importado
+    MyBidsView,   
     MyAuctionsView
 )
 

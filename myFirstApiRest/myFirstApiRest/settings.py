@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     # TUS APPS:
     "auctions",
     "users",
+    "ratings",
+    "comments",
     # LIBS:
     "rest_framework",
     "rest_framework_simplejwt",
@@ -154,7 +156,7 @@ STATIC_URL = "static/"
 # ===================================
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 12,
+    "PAGE_SIZE": 30,
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
