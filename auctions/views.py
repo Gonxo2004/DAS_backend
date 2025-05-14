@@ -130,16 +130,12 @@ class BidRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
         serializer.save(bidder=self.request.user)
 
 
-class UserAuctionListView(APIView):
-    """
-    Lista todas las subastas creadas por el usuario autenticado.
-    """
+class UserAuctionListView(generics.ListAPIView):
+    serializer_class = AuctionListCreateSerializer
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, *args, **kwargs):
-        user_auctions = Auction.objects.filter(auctioneer=request.user)
-        serializer = AuctionListCreateSerializer(user_auctions, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        return Auction.objects.filter(auctioneer=self.request.user)
 
 class MyBidsView(generics.ListAPIView):
     """

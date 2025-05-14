@@ -67,7 +67,8 @@ class AuctionDetailSerializer(serializers.ModelSerializer):
     @extend_schema_field(serializers.BooleanField())
     def get_isOpen(self, obj):
         return obj.closing_date > timezone.now()
-
+        
+    @extend_schema_field(serializers.FloatField(allow_null=True))
     def get_average_rating(self, obj):
         return obj.get_average_rating()
 
