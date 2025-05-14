@@ -31,6 +31,7 @@ ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
     "0.0.0.0",
+    "@dpg-d0i4inl6ubrc73d5p2jg-a.virginia-postgres.render.com",
     "das-backend-1-4y45.onrender.com",  # Tu dominio en Render
 ]
 
@@ -110,6 +111,7 @@ if DEBUG:
     }
 else:
     # Producción: usar DATABASE_URL (PostgreSQL) de Render
+    load_dotenv()
     DATABASES = {
         "default": dj_database_url.config(
             default=os.getenv("DATABASE_URL")
