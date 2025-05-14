@@ -21,7 +21,7 @@ load_dotenv()  # Carga variables de entorno desde .env si existe
 # ===================================
 # SECURITY & DEBUG
 # ===================================
-SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-gx$fal-...")  # Mejor nunca subir la real al repo
+SECRET_KEY = "django-insecure-gx$fal-4#fs=x18zjw7#62$wd*c6o%r@mw@93%h18vauwdocq+"
 DEBUG = os.getenv("DEBUG", "True") == "True"
 
 # ===================================
@@ -32,7 +32,8 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "0.0.0.0",
     "@dpg-d0i4inl6ubrc73d5p2jg-a.virginia-postgres.render.com",
-    "das-backend-1-4y45.onrender.com",  # Tu dominio en Render
+    #"@dpg-d0i4inl6ubrc73d5p2jg-a/das_los_duros",
+    "das-backend-1-final.onrender.com",  # Tu dominio en Render
 ]
 
 # ===================================
